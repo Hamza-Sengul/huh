@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>huhh</title>
+    <style>
+        /* Genel Sayfa Stili */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4a90e2;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        /* Form Stili */
+        #pdfTextForm {
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        input[type="file"] {
+            font-size: 0.9em;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #357ABD;
+        }
+
+        /* Chatbox Stili */
+        #chatbox {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #messages {
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        #messages p {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .user-message {
+            background-color: #e8f4fd;
+            color: #333;
+            align-self: flex-start;
+        }
+
+        .bot-message {
+            background-color: #4a90e2;
+            color: #fff;
+            align-self: flex-end;
+        }
+
+        /* Mobil Uyumluluk */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            textarea {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>yanlış yerdesin!</h1>
+    <form id="pdfTextForm" enctype="multipart/form-data" method="post">
+        <!-- CSRF Token -->
+        {% csrf_token %}
+        
+        <textarea id="userMessage" name="message" placeholder="mesaj?"></textarea>
+        <input type="file" id="pdfFile" name="pdf_file" accept="application/pdf" />
+        <button type="button" onclick="sendPdfAndText()">gönder...</button>
+    </form>
+    <div id="chatbox">
+        <div id="messages"></div>
+    </div>
+
+    There's always a solution.
+
+    <script>
+        async function sendPdfAndText() {
+            const formData = new FormData(document.getElementById("pdfTextForm"));
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            const response = await fetch("/api/chatbot_pdf_text/", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": csrfToken
+                }
+            });
+
+            const data = await response.json();
+            
+            const botMessageElement = document.createElement("p");
+            botMessageElement.textContent = "GPT-4: " + data.reply;
+            botMessageElement.classList.add("bot-message");
+            document.getElementById("messages").appendChild(botMessageElement);
+        }
+    </script>
+</body>
+</html>
